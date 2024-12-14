@@ -1,0 +1,26 @@
+﻿services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ContactsDb
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  webapi:
+    build:
+      context: .
+      dockerfile: ./src/WebApi/Dockerfile
+    environment:
+      ConnectionStrings__DefaultConnection: "Host=db;Database=ContactsDb;Username=postgres;Password=postgres"
+      ASPNETCORE_ENVIRONMENT: "Development"
+    depends_on:
+      - db
+    ports:
+      - "5001:8080"
